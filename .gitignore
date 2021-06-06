@@ -1,0 +1,7 @@
+*.map
+*.uvguix.*
+*.uvoptx
+startup_stm32f10x_md.lst
+Output/
+RTE/
+DebugConfig/
