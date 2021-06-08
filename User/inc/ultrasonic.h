@@ -20,7 +20,7 @@ extern int Distance;
 
 
 void TIM1_Cap_Init(void);	
-void Read_Distane(void);
+void Read_Distance(void);
 char InfraredDetect(void);
 void UltraSelfCheck(void);
 int IsUltraOK(void);

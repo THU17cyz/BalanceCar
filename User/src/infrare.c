@@ -47,22 +47,18 @@ void InfraredIOInit(void)
 */
 char InfraredDetect(void)
 {
-	char resut = 0;
+	char result = 0;
 
-	if(Lc)
-		resut |= infrared_channel_Lc;
-//	else if(Lb)
-//		resut |= infrared_channel_Lb;
-	else if(La)
-		resut |= infrared_channel_La;
-	else if(Ra)
-		resut |= infrared_channel_Ra;
-//	else if(Rb)
-//		resut |= infrared_channel_Rb;
-	else if(Rc)
-		resut |= infrared_channel_Rc;
+	if (Lc)
+		result |= infrared_channel_Lc;
+	else if (La)
+		result |= infrared_channel_La;
+	else if (Ra)
+		result |= infrared_channel_Ra;
+	else if (Rc)
+		result |= infrared_channel_Rc;
 
-	return resut;
+	return result;
 }
 
 static char InfrareError = 0;//0:Ok; 1:error
