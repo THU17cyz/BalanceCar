@@ -31,6 +31,9 @@ typedef struct _PID_t{
 #define MOTOR_OUT_MIN         (-999)   //占空比负最大值
 
 
+extern int g_iLeftTurnRoundCnt;
+extern int g_iRightTurnRoundCnt;
+
 extern short  g_s16LeftMotorPulse;
 extern short  g_s16RightMotorPulse;
 
