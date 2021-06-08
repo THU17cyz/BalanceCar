@@ -79,7 +79,7 @@ void TIM1_Cap_Init(void)
 /*
 	触发一次超声波测距，并读取上次测量结果
 */
-void Read_Distane(void)
+void Read_Distance(void)
 {   
 	 GPIO_SetBits(GPIOA, GPIO_Pin_2);
 	 delay_us(20);  

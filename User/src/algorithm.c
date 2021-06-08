@@ -109,10 +109,13 @@ void BRaceMode(void)
 {
 	switch (g_bRaceStep) {
 	case BR_INIT:
+		Steer(0, 4);
+		g_bRaceStep = BR_AVOID;
 		break;
 	case BR_TRACE:
 		break;
 	case BR_AVOID:
+		if(IsUltraOK()) UltraControl(1);
 		break;
 	case BR_DONE:
 		break;

@@ -1,7 +1,7 @@
 #ifndef __ALGORITHM_H
 #define __ALGORITHM_H
 
-#define B_MODE B_DEMO_MODE	// 在此修改运行模式
+#define B_MODE B_RACE_MODE	// 在此修改运行模式
 
 enum BMode {
 	B_TEST_MODE = 0,	// 测试模式

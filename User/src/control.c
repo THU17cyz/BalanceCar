@@ -20,6 +20,12 @@
 #include "ultrasonic.h"
 #include "infrare.h"
 
+const int g_s32RotateAmount = 750;
+const int g_s32RotateSpeed = 5;
+
+int g_s32TurnCount = 0;
+int g_s32TurningRight = 0;
+
 
 unsigned char g_u8MainEventCount;
 unsigned char g_u8SpeedControlCount;
@@ -237,29 +243,31 @@ void MotorManage(void)
 ***************************************************************/
 void SetMotorVoltageAndDirection(int i16LeftVoltage,int i16RightVoltage)
 {
-	  if(i16LeftVoltage<0)
-    {	
-			GPIO_SetBits(GPIOA, GPIO_Pin_3 );				    
-      GPIO_ResetBits(GPIOA, GPIO_Pin_4 );
-      i16LeftVoltage = (-i16LeftVoltage);
-    }
-    else 
-    {	
-      GPIO_SetBits(GPIOA, GPIO_Pin_4 );				    
-      GPIO_ResetBits(GPIOA, GPIO_Pin_3 ); 
-    }
+	if(i16LeftVoltage<0)
+	{	
+		GPIO_SetBits(GPIOA, GPIO_Pin_3 );				    
+		GPIO_ResetBits(GPIOA, GPIO_Pin_4 );
+		i16LeftVoltage = (-i16LeftVoltage);
+	}
+	else 
+	{	
+		GPIO_SetBits(GPIOA, GPIO_Pin_4 );				    
+		GPIO_ResetBits(GPIOA, GPIO_Pin_3 ); 
+	}
 
-    if(i16RightVoltage<0)
-    {	
-     	GPIO_SetBits(GPIOB, GPIO_Pin_0 );				    
-      GPIO_ResetBits(GPIOB, GPIO_Pin_1 );
-      i16RightVoltage = (-i16RightVoltage);
-    }
-    else
-    {
-			GPIO_SetBits(GPIOB, GPIO_Pin_1 );				    
-			GPIO_ResetBits(GPIOB, GPIO_Pin_0 );	      
-    }
+	if(i16RightVoltage<0)
+	{	
+		GPIO_SetBits(GPIOB, GPIO_Pin_0 );				    
+		GPIO_ResetBits(GPIOB, GPIO_Pin_1 );
+		i16RightVoltage = (-i16RightVoltage);
+	}
+	else
+	{
+		GPIO_SetBits(GPIOB, GPIO_Pin_1 );				    
+		GPIO_ResetBits(GPIOB, GPIO_Pin_0 );	      
+	}
+	
+	i16RightVoltage *= 1.0;
 
 	if(i16RightVoltage > MOTOR_OUT_MAX)  
 	{
@@ -512,15 +520,42 @@ void UltraControl(int mode)
 	}
 	else if(mode == 1)
 	{
-		if((Distance >= 0) && (Distance<= 20))
-		{//右转750个脉冲计数，转弯角度约为90度
-			Steer(5, 0);
-			g_iLeftTurnRoundCnt = 750;
-			g_iRightTurnRoundCnt = -750;
+		if((Distance >= 0) && (Distance<= 20) && (g_s32TurningRight == 0))
+		{		
+			//右转750个脉冲计数，转弯角度约为90度
+			Steer(g_s32RotateSpeed * 2, 0);
+			g_iLeftTurnRoundCnt = g_s32RotateAmount;
+			g_iRightTurnRoundCnt = -g_s32RotateAmount;
+			g_s32TurningRight = 1;
+			
 		}
-		if((g_iLeftTurnRoundCnt < 0)&&(g_iRightTurnRoundCnt > 0))
-		{
-			Steer(0, 4);
+		if (g_s32TurningRight > 0) {
+			if((g_s32TurnCount == 0 && g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt < 0) || (g_iLeftTurnRoundCnt < 0 && g_iRightTurnRoundCnt > 0 && g_s32TurnCount == 1)) //(g_iLeftTurnRoundCnt < 0)&&(g_iRightTurnRoundCnt > 0))
+			{
+				if ((Distance >= 0) && (Distance<= 20))
+				{
+					if (g_s32TurnCount == 0) {
+						Steer(g_s32RotateSpeed * 2, 0);
+						g_iLeftTurnRoundCnt = -g_iLeftTurnRoundCnt + g_s32RotateAmount * 2;
+						g_iRightTurnRoundCnt = -g_iRightTurnRoundCnt - g_s32RotateAmount * 2;
+						g_s32TurningRight = 1;
+						g_s32TurnCount = 1;
+					} else {
+						Steer(g_s32RotateSpeed * 2, 0);
+						g_iLeftTurnRoundCnt = g_s32RotateAmount;
+						g_iRightTurnRoundCnt = -g_s32RotateAmount;
+						g_s32TurningRight = 1;
+						g_s32TurnCount = 0;
+					}
+				}		
+				else {
+					Steer(0, 4);
+					//g_iLeftTurnRoundCnt = 0;
+					//g_iRightTurnRoundCnt = 0;
+					g_s32TurningRight = 0;
+					g_s32TurnCount = 0;
+				}
+			}
 		}
 	}
 }

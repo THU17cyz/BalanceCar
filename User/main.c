@@ -79,7 +79,7 @@ int main(void)
 		{
 			SoftTimer[2] = 20;
 			ShowHomePage();
-			Read_Distane();
+			Read_Distance();
 
 			if (B_MODE == B_TEST_MODE)
 				BTestMode();
