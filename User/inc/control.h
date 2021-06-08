@@ -32,6 +32,7 @@ typedef struct _PID_t{
 
 extern int  g_s32TurnCount;
 extern int  g_s32TurningRight;
+extern int  g_s32TwoTurnCooldown;
 
 
 extern int g_iLeftTurnRoundCnt;

@@ -25,6 +25,7 @@ const int g_s32RotateSpeed = 5;
 
 int g_s32TurnCount = 0;
 int g_s32TurningRight = 0;
+int g_s32TwoTurnCooldown = 0;
 
 
 unsigned char g_u8MainEventCount;
@@ -552,8 +553,13 @@ void UltraControl(int mode)
 					Steer(0, 4);
 					//g_iLeftTurnRoundCnt = 0;
 					//g_iRightTurnRoundCnt = 0;
-					g_s32TurningRight = 0;
-					g_s32TurnCount = 0;
+					if (g_s32TwoTurnCooldown <= 20) g_s32TwoTurnCooldown += 1;
+					else {
+						g_s32TwoTurnCooldown = 0;
+						g_s32TurningRight = 0;
+					  g_s32TurnCount = 0;
+					}
+					
 				}
 			}
 		}
