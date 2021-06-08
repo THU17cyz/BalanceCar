@@ -70,7 +70,7 @@ int main(void)
 		{// 每隔20ms 执行一次
 			SoftTimer[1] = 20;
 			ResponseIMU();			
-			DebugService();			
+			DebugService();
 			Parse(Uart3Buffer);
 			
 		}			
