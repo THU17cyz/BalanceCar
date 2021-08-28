@@ -1,7 +1,14 @@
+/**********************************************************************
+
+作    者:  黄翔 田丰源 从业臻
+	
+***********************************************************************/
+
+
 #ifndef __ALGORITHM_H
 #define __ALGORITHM_H
 
-#define B_MODE B_TEST_MODE	// 在此修改运行模式
+#define B_MODE B_RACE_MODE	// 在此修改运行模式
 
 enum BMode {
 	B_TEST_MODE = 0,	// 测试模式
@@ -25,6 +32,9 @@ enum BDemoStep {
 	BD_LPAUSE = 6, 
 	BD_RIGHTWARD = 7,
 	BD_DONE = 8,
+	BD_REFINE = 9,
+	BD_LFRONT = 10,
+	BD_RFRONT = 11,
 };
 
 enum BRaceStep {

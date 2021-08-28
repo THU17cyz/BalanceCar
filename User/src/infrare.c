@@ -14,6 +14,7 @@
 #include "stm32f10x_gpio.h"
 #include "infrare.h"
 
+
 void InfraredIOInit(void)
 {
 

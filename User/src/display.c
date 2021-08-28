@@ -2,8 +2,9 @@
 版权所有：	喵呜创新科技，2017.
 官		网：	http://www.miaowlabs.com
 淘		宝：	https://miaowlabs.taobao.com/
-文 件 名: 	display.c
+文 件 名: 	  display.c
 作    者:   喵呜实验室
+改    写:   从业臻 田丰源 黄翔
 版		本:   3.00
 完成日期:   2017.03.01
 概		要: 	
@@ -20,6 +21,9 @@
 #include "common.h"
 #include "manage.h"
 #include "bsp.h"
+#include "stm32f10x_gpio.h"
+#include "infrare.h"
+
 
 extern unsigned short BatVol;
 
@@ -50,11 +54,21 @@ void ShowHomePage(void)
 	if(step >= 6)step = 0;
 
 	//分步执行，缩短单次刷屏时间
-	if(step == 0){
-		OLED_ShowString(0, 0, "Mode: Complementary  ");
+	if(step == 0)
+	{
+		if (g_CarRunningMode == INFRARED_TRACE_MODE)
+			snprintf((char*)buff, 21, "Infrare");
+		else if (g_CarRunningMode == ULTRA_AVOID_MODE)
+			snprintf((char*)buff, 21, "Ultra");
+		else
+			snprintf((char*)buff, 21, "Done");
+		
+		OLED_ShowString(0, 0, buff);
+		
 	}
 
-	if(step == 1){
+	if(step == 1)
+	{
 		if(IsUltraOK())
 			snprintf((char*)buff, 21,  "Distance:  %d(cm)       ", Distance);
 		else
@@ -63,23 +77,45 @@ void ShowHomePage(void)
 		OLED_ShowString(0, 1, buff);
 	}
 
-	if(step == 2){
-		snprintf((char*)buff, 21,  "EncoLeft:  %d         ",g_s16LeftMotorPulse);
+	if(step == 2)
+	{
+		if (g_CarRunningMode == INFRARED_TRACE_MODE)
+			snprintf((char*)buff, 21, "La:  %d         ", La);
+		else if (g_CarRunningMode == ULTRA_AVOID_MODE)
+			snprintf((char*)buff, 21,  "EncoLeft:  %d         ",g_s16LeftMotorPulse);
+		
 		OLED_ShowString(0, 2, buff);
 	}
-	if(step == 3){
-		snprintf((char*)buff, 21, "EncoRight: %d         ",g_s16RightMotorPulse);
+	if(step == 3)
+	{
+		if (g_CarRunningMode == INFRARED_TRACE_MODE)
+			snprintf((char*)buff, 21, "Ra:  %d         ", Ra);
+		else if (g_CarRunningMode == ULTRA_AVOID_MODE)
+			snprintf((char*)buff, 21, "diff: %d ", g_s32DiffCountAfterTurn);
+		// snprintf((char*)buff, 21, "EncoRight: %d         ",g_s16RightMotorPulse);
+	
 		OLED_ShowString(0, 3, buff);
 	}
 	
-	if(step == 4){
-		snprintf((char*)buff, 21, "Angle:     %0.1f      ", g_fCarAngle);
+	if(step == 4)
+	{
+		if (g_CarRunningMode == INFRARED_TRACE_MODE)
+		  snprintf((char*)buff, 21, "Lc:  %d         ", Lc);
+		else if (g_CarRunningMode == ULTRA_AVOID_MODE)
+			snprintf((char*)buff, 21, "Angle:     %0.1f      ", g_fCarAngle);
+		
 		OLED_ShowString(0, 4, buff);
 	}
-	if(step == 5){
-		snprintf((char*)buff, 21, "Battery:   %0.1f(V)      ", g_BatVolt/100.0);
+	
+	if(step == 5)
+	{
+		if (g_CarRunningMode == INFRARED_TRACE_MODE)
+			snprintf((char*)buff, 21, "Rc:  %d         ", Rc);
+		else if (g_CarRunningMode == ULTRA_AVOID_MODE)
+			snprintf((char*)buff, 21, "Battery:   %0.1f(V)      ", g_BatVolt/100.0);
+		
 		OLED_ShowString(0, 5, buff);		
-		}
+	}
 }
 
 

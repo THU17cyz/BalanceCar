@@ -4,11 +4,10 @@
 淘		宝：	https://miaowlabs.taobao.com/
 文 件 名: 	  control.c
 作    者:   喵呜实验室MiaowLabs
+改    写:   从业臻 田丰源 黄翔
 版		本:   3.00
 完成日期:   2017.03.01
 概		要: 	
-
-
 ***********************************************************************/
 #include "math.h"
 #include "stdio.h"
@@ -19,6 +18,15 @@
 #include "bsp.h"
 #include "ultrasonic.h"
 #include "infrare.h"
+
+const int g_s32RotateAmount = 920;
+const int g_s32RotateSpeed = 10;
+
+int g_s32TurningRight = 0;
+int g_s32LastLastTurn = 0; // 0先右，1先左
+int g_s32LastTurn = 1;
+int g_s32DiffCountAfterTurn = 0;
+int time_elapsed_after_turn = 0;
 
 
 unsigned char g_u8MainEventCount;
@@ -74,6 +82,8 @@ int g_iLeftTurnRoundCnt = 0;
 int g_iRightTurnRoundCnt = 0;
 
 static int AbnormalSpinFlag = 0;
+
+
 /***************************************************************
 ** 函数名称: CarUpstandInit
 ** 功能描述: 全局变量初始化函数
@@ -117,7 +127,6 @@ void CarUpstandInit(void)
 ** 作　者:   喵呜实验室MiaowLabs
 ** 日　期:   2017年4月26日
 ***************************************************************/
-
 void AbnormalSpinDetect(short leftSpeed,short rightSpeed)
 {
 	static unsigned short count = 0;
@@ -142,6 +151,7 @@ void AbnormalSpinDetect(short leftSpeed,short rightSpeed)
 		count = 0;
 	}
 }
+
 
 /***************************************************************
 ** 函数名称: LandingDetect
@@ -189,6 +199,7 @@ void LandingDetect(void)
 	}
 }
 
+
 /***************************************************************
 ** 函数名称: MotorManage
 ** 功能描述: 电机使能/失能控制      
@@ -225,6 +236,7 @@ void MotorManage(void)
 	
 }
 
+
 /***************************************************************
 ** 函数名称: SetMotorVoltageAndDirection
 ** 功能描述: 电机转速及方向控制函数             
@@ -237,29 +249,31 @@ void MotorManage(void)
 ***************************************************************/
 void SetMotorVoltageAndDirection(int i16LeftVoltage,int i16RightVoltage)
 {
-	  if(i16LeftVoltage<0)
-    {	
-			GPIO_SetBits(GPIOA, GPIO_Pin_3 );				    
-      GPIO_ResetBits(GPIOA, GPIO_Pin_4 );
-      i16LeftVoltage = (-i16LeftVoltage);
-    }
-    else 
-    {	
-      GPIO_SetBits(GPIOA, GPIO_Pin_4 );				    
-      GPIO_ResetBits(GPIOA, GPIO_Pin_3 ); 
-    }
+	if(i16LeftVoltage<0)
+	{	
+		GPIO_SetBits(GPIOA, GPIO_Pin_3 );				    
+		GPIO_ResetBits(GPIOA, GPIO_Pin_4 );
+		i16LeftVoltage = (-i16LeftVoltage);
+	}
+	else 
+	{	
+		GPIO_SetBits(GPIOA, GPIO_Pin_4 );				    
+		GPIO_ResetBits(GPIOA, GPIO_Pin_3 ); 
+	}
 
-    if(i16RightVoltage<0)
-    {	
-     	GPIO_SetBits(GPIOB, GPIO_Pin_0 );				    
-      GPIO_ResetBits(GPIOB, GPIO_Pin_1 );
-      i16RightVoltage = (-i16RightVoltage);
-    }
-    else
-    {
-			GPIO_SetBits(GPIOB, GPIO_Pin_1 );				    
-			GPIO_ResetBits(GPIOB, GPIO_Pin_0 );	      
-    }
+	if(i16RightVoltage<0)
+	{	
+		GPIO_SetBits(GPIOB, GPIO_Pin_0 );				    
+		GPIO_ResetBits(GPIOB, GPIO_Pin_1 );
+		i16RightVoltage = (-i16RightVoltage);
+	}
+	else
+	{
+		GPIO_SetBits(GPIOB, GPIO_Pin_1 );				    
+		GPIO_ResetBits(GPIOB, GPIO_Pin_0 );	      
+	}
+	
+	i16RightVoltage *= 1.0;
 
 	if(i16RightVoltage > MOTOR_OUT_MAX)  
 	{
@@ -269,6 +283,9 @@ void SetMotorVoltageAndDirection(int i16LeftVoltage,int i16RightVoltage)
 	{
 	   i16LeftVoltage = MOTOR_OUT_MAX;
 	}  
+	
+	// 针对我们的小车硬件的校正（两边电机有差别）
+	i16LeftVoltage *= 1.03; // bigger lefter
 	
 	if(g_cMotorDisable)
 	{
@@ -317,7 +334,6 @@ void MotorOutput(void)
 }
 
 
-
 void GetMotorPulse(void)  //采集电机速度脉冲
 { 	
   g_s16LeftMotorPulse = TIM_GetCounter(TIM2);     
@@ -332,6 +348,7 @@ void GetMotorPulse(void)  //采集电机速度脉冲
 	g_iRightTurnRoundCnt -= g_s16RightMotorPulse;
 
 }
+
 
 /***************************************************************
 ** 作　  者: MiaowLabs Team
@@ -360,6 +377,8 @@ void AngleCalculate(void)
 	//-------互补滤波---------------
 	g_fCarAngle = 0.98 * (g_fCarAngle + g_fGyroAngleSpeed * 0.005) + 0.02 *	g_fGravityAngle;
 }
+
+
 /***************************************************************
 ** 作　  者: 喵呜实验室MiaowLabs
 ** 官    网：http://www.miaowlabs.com
@@ -379,7 +398,6 @@ void AngleControl(void)
 }
 
 
-
 /***************************************************************
 ** 函数名称: SpeedControl
 ** 功能描述: 速度环控制函数
@@ -390,7 +408,6 @@ void AngleControl(void)
 ** 淘  宝：  https://miaowlabs.taobao.com/
 ** 日　期:   2014年08月01日
 ***************************************************************/
-
 void SpeedControl(void)
 {
   	float fP,fI;   	
@@ -419,6 +436,8 @@ void SpeedControl(void)
 	g_fSpeedControlOutOld = g_fSpeedControlOutNew;
   g_fSpeedControlOutNew = fP + g_fCarPosition;
 }
+
+
 /***************************************************************
 ** 函数名称: SpeedControlOutput
 ** 功能描述: 速度环控制输出函数-分多步逐次逼近最终输出，尽可能将对直立环的干扰降低。
@@ -460,6 +479,7 @@ float Scale(float input, float inputMin, float inputMax, float outputMin, float 
   return output;
 }
 
+
 /***************************************************************
 ** 函数名称: Steer
 ** 功能描述: 遥控速度及方向处理函数
@@ -467,7 +487,7 @@ float Scale(float input, float inputMin, float inputMax, float outputMin, float 
 ** 输　出:   
 ** 全局变量: 
 ** 作　者:   喵呜实验室MiaowLabs
-** 淘  宝：  https://miaowlabs.taobao.com/
+** 淘  宝:   https://miaowlabs.taobao.com/
 ** 日　期:   2014年08月01日
 ***************************************************************/
 void Steer(float direct, float speed)
@@ -484,46 +504,129 @@ void Steer(float direct, float speed)
 
 }
 
+
+void Steer_no_Scale(float direct, float speed)
+{
+	// 对角度没有放缩的Steer函数
+	g_fBluetoothDirection = direct;
+
+	if(speed > 0)
+		g_iCarSpeedSet = Scale(speed, 0, 10, 0, 70);
+	else
+		g_iCarSpeedSet = -Scale(speed, 0, -10, 0, 70);
+
+}
+
+
 /***************************************************************
 ** 作　  者: Songyibiao
-** 官    网：http://www.miaowlabs.com
-** 淘    宝：https://miaowlabs.taobao.com/
+** 改    编: 从业臻 田丰源 黄翔
+** 官    网: http://www.miaowlabs.com
+** 淘    宝: https://miaowlabs.taobao.com/
 ** 日　  期: 20160415
 ** 函数名称: UltraControl
 ** 功能描述: 超声波跟随/避障           
 ** 输　  入:   
 ** 输　  出:   
 ** 备    注: 
-********************喵呜实验室MiaowLabs版权所有**************************/
+***************************************************************/
 void UltraControl(int mode)
 {
-	if(mode == 0)
+	
+	static int diff = 0;
+
+	if(mode == 1)
 	{
-		if((Distance >= 0) && (Distance<= 12))
-		{//距离小于12cm则后退
-			Steer(0, -4);
-		}
-		else if((Distance> 18) && (Distance<= 30))	
-		{//距离大于18cm且小于30则前进
-			Steer(0, 4);
-		}
-		else
-			Steer(0, 0);
-	}
-	else if(mode == 1)
-	{
-		if((Distance >= 0) && (Distance<= 20))
-		{//右转750个脉冲计数，转弯角度约为90度
-			Steer(5, 0);
-			g_iLeftTurnRoundCnt = 750;
-			g_iRightTurnRoundCnt = -750;
-		}
-		if((g_iLeftTurnRoundCnt < 0)&&(g_iRightTurnRoundCnt > 0))
+		if (g_s32TurningRight == 0)
 		{
-			Steer(0, 4);
+			// 曾经的反馈调整方案
+			/*
+			if(g_s32LastTurn == 0 && g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt < 0)
+			{
+					
+				Steer_no_Scale((g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt) * 0.03, 6);
+					
+			}
+			if (g_s32LastTurn == 1 && g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt > 0)
+			{
+				Steer_no_Scale((g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt) * 0.03, 6);
+			}
+			*/
+			diff = g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt;
+			g_s32DiffCountAfterTurn = g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt;
+			
+			diff = diff > 0 ? diff : -diff;
+
+      // 根据左右轮TurnRoundCnt之差调整转动速度，采用恒定速度校正
+			if(diff > 1)
+			{
+				if(g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt > 0)
+				{
+					Steer(2, 16);
+				}
+				else
+				{
+					Steer(-2, 16);
+				}
+			}
+			else
+			{
+				Steer(0, 16);
+			}
+
+			time_elapsed_after_turn += 1;
+		}
+		if((Distance >= 0) && (Distance<= 20) && (g_s32TurningRight == 0))
+		{	
+			int turn = 0;
+			time_elapsed_after_turn = 0;
+			
+			// 遵照 左-右右-左左-右右-左左-...的转弯模式
+			if (g_s32LastLastTurn == 0)
+				turn = 1;
+			
+      if (turn == 0)
+			{
+				//右转g_s32RotateAmount个脉冲计数，转弯角度大于90度，之后调节
+				Steer(g_s32RotateSpeed, 0);
+				g_iLeftTurnRoundCnt = g_s32RotateAmount;
+				g_iRightTurnRoundCnt = -g_s32RotateAmount;
+				g_s32TurningRight = 1;
+			}
+			else
+			{
+				//左转g_s32RotateAmount个脉冲计数，转弯角度大于90度，之后调节
+				Steer(-g_s32RotateSpeed, 0);
+				g_iLeftTurnRoundCnt = -g_s32RotateAmount;
+				g_iRightTurnRoundCnt = g_s32RotateAmount;
+				g_s32TurningRight = 1;
+			}
+			
+			// 更新上两次转弯方向
+			g_s32LastLastTurn = g_s32LastTurn;
+			g_s32LastTurn = turn;
+			
+		}
+		if (g_s32TurningRight > 0) {
+			if (g_s32LastTurn == 0 && g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt < 0) //(g_iLeftTurnRoundCnt < 0)&&(g_iRightTurnRoundCnt > 0))
+			{
+				Steer(0, 6);
+				// 曾经的方案，由于motoroutput有大小限制，故瞬间改变速度没有用
+				//Steer_no_Scale((g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt) * 30.0, 6);
+				g_s32TurningRight = 0;
+				g_s32DiffCountAfterTurn = g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt;
+			}
+			if (g_s32LastTurn == 1 && g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt > 0)
+			{
+				Steer(0, 6);
+				//Steer_no_Scale((g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt) * 30.0, 6);
+				g_s32TurningRight = 0;
+				g_s32DiffCountAfterTurn = g_iLeftTurnRoundCnt - g_iRightTurnRoundCnt;
+			}
 		}
 	}
 }
+
 
 /***************************************************************
 ** 作　  者: MiaowLabs Team
@@ -535,8 +638,8 @@ void UltraControl(int mode)
 ** 输　  入:   
 ** 输　  出:   
 ** 备    注: 
-********************喵呜实验室MiaowLabs版权所有**************************
-***************************************************************/
+********************喵呜实验室MiaowLabs版权所有**************************/
+// 没有用到该函数，用了我们的版本
 void TailingControl(void)
 {
 #if INFRARE_DEBUG_EN > 0
