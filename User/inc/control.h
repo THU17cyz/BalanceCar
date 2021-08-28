@@ -1,3 +1,16 @@
+/**********************************************************************
+版权所有：	  喵呜实验室MiaowLabs，2017.
+官		网：	http://www.miaowlabs.com
+淘		宝：	https://miaowlabs.taobao.com/
+文 件 名: 	  control.c
+作    者:   喵呜实验室MiaowLabs
+改    写:   从业臻 田丰源 黄翔
+版		本:   3.00
+完成日期:   2017.03.01
+概		要: 	
+***********************************************************************/
+
+
 #ifndef __CONTROL_H
 #define __CONTROL_H
 
@@ -30,6 +43,17 @@ typedef struct _PID_t{
 #define MOTOR_OUT_MAX           999	   //占空比正最大值
 #define MOTOR_OUT_MIN         (-999)   //占空比负最大值
 
+#define ROTATE_AMOUNT 750
+#define ROTATE_SPEED 5
+
+
+
+extern int g_s32TurningNow;          // 是否正在转弯
+extern int time_elapsed_after_turn;  // 避障中上一次转弯后经过的时间
+
+extern int g_iLeftTurnRoundCnt;
+extern int g_iRightTurnRoundCnt;
+extern int g_s32DiffCountAfterTurn;  // 左右轮脉冲计数差
 
 extern short  g_s16LeftMotorPulse;
 extern short  g_s16RightMotorPulse;
@@ -68,7 +92,6 @@ void DirectionControlOutput(void);
 void DirectionControl(void); 
 void Steer(float direct, float speed);
 void UltraControl(int mode);
-
 void TailingControl(void);
 
 

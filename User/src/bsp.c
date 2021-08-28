@@ -123,6 +123,7 @@ void BspInit(void)
 	UltraSelfCheck();							//	超声模块开机自检
 	InfrareSelfCheck();						//  红外模块开机自检
 	
+	/*
 	delay_ms(500);			//延时0.5s，等待蓝牙模块启动
 	Uart3SendStr("AT+BAUD8\r\n"); //配置蓝牙串口波特率为115200 ( 原波特率9600 ) 
 	delay_ms(20);
@@ -131,5 +132,6 @@ void BspInit(void)
 	delay_ms(20);
 	SetBlueToothName();		//配置蓝牙模块名称
 	Uart3SendStr("AT+RESET\r\n");  //蓝牙复位
+	*/
 }
 

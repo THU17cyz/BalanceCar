@@ -568,6 +568,11 @@
               <FileType>1</FileType>
               <FilePath>.\User\src\manage.c</FilePath>
             </File>
+            <File>
+              <FileName>algorithm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\User\src\algorithm.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -589,5 +594,14 @@
     </components>
     <files/>
   </RTE>
+
+  <LayerInfo>
+    <Layers>
+      <Layer>
+        <LayName>BasicBalance</LayName>
+        <LayPrjMark>1</LayPrjMark>
+      </Layer>
+    </Layers>
+  </LayerInfo>
 
 </Project>

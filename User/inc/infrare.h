@@ -16,6 +16,12 @@
 #ifndef _INFRARE_H
 #define _INFRARE_H
 
+#define La GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_5)
+//#define Lb GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_4)
+#define Lc GPIO_ReadInputDataBit(GPIOB, GPIO_Pin_3)
+#define Ra GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_15)
+//#define Rb GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_12)
+#define Rc GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_8)
 
 typedef enum _infrared_channel_t{
 	infrared_channel_La = (0x01 << 0),

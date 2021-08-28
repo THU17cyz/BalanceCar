@@ -2,8 +2,9 @@
 版权所有：	喵呜创新科技，2017.
 官		网：	http://www.miaowlabs.com
 淘		宝：	https://miaowlabs.taobao.com/
-文 件 名: 	main.c
+文 件 名: 	  main.c
 作    者:   喵呜实验室
+改    写:   田丰源 黄翔 从业臻 
 版		本:   3.00
 完成日期:   2017.03.01
 概		要: 	
@@ -24,7 +25,7 @@
 #include "ultrasonic.h"
 #include "infrare.h"
 #include "manage.h"
-
+#include "algorithm.h"
 
 //秒级任务
 void SecTask()
@@ -59,43 +60,35 @@ int main(void)
 	if(IsInfrareOK())
 		g_iGravity_Offset = 1; //若果检测到悬挂红外模块，则更改偏移值。
 	
-	ShowHomePageInit();
+	// sShowHomePageInit();
  
 	while (1)
 	{
-		
 		SecTask();			//秒级任务
-
 		if(SoftTimer[1] == 0)
-		{// 每隔20ms 执行一次
+		{
+			// 每隔20ms 执行一次
 			SoftTimer[1] = 20;
 			ResponseIMU();			
 			DebugService();			
 			Parse(Uart3Buffer);
-			
 		}			
   	
 		if(SoftTimer[2] == 0)
 		{
-			SoftTimer[2] = 20;
+			SoftTimer[2] = 10; // 改为每隔10ms执行
 			ShowHomePage();
-	
 			Read_Distane();
 
-			if(g_CarRunningMode == ULTRA_FOLLOW_MODE){
-				if(IsUltraOK())UltraControl(0);	//超声波跟随模式
-	 		}
-			if(g_CarRunningMode == ULTRA_AVOID_MODE){
-				if(IsUltraOK())UltraControl(1);	//超声波避障模式
-	 		}
-			else if(g_CarRunningMode == INFRARED_TRACE_MODE){
-				TailingControl();
-			}
-		}			
+			if (B_MODE == B_TEST_MODE)
+				BTestMode();
+			else if (B_MODE == B_DEMO_MODE)
+				BDemoMode();
+			else if (B_MODE == B_RACE_MODE)
+				BRaceMode();
+		}
 	}
 }
 
 
 /******************* (C) COPYRIGHT 2016 MiaowLabs Team *****END OF FILE************/
-
-
